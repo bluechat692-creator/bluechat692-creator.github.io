@@ -1,7 +1,7 @@
 importScripts('./clear-push.js');
 
 // CLEAR service worker
-const CACHE = "clear-v8";
+const CACHE = "clear-v9";
 
 const SHELL = [
   "./",
@@ -9,7 +9,8 @@ const SHELL = [
   "./manifest.json",
   "./clear-push.js",
   "./clear-192.png",
-  "./clear-512.png"
+  "./clear-512.png",
+  "./clear-badge.png"
 ];
 
 self.addEventListener("install", event => {
