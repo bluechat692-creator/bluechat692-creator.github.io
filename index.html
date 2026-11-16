@@ -6052,4 +6052,124 @@ html body #body .mw .msg.call-ended.call-ended.call-ended .ce-meta b{font-size:1
  window.__softRefreshReady=true;
 })();
 </script>
-</body></html>
+  
+<style>
+#clear-update{
+ position:fixed;inset:0;z-index:999999;
+ display:none;align-items:center;justify-content:center;
+ padding:24px;background:#000a;backdrop-filter:blur(12px);
+}
+#clear-update.show{display:flex}
+#clear-update .panel{
+ width:100%;max-width:360px;padding:25px;
+ border:1px solid #344b80;border-radius:26px;
+ background:linear-gradient(145deg,#111b38,#080d20);
+ color:#fff;text-align:center;
+ box-shadow:0 20px 70px #000b;
+ font-family:Sora,system-ui,sans-serif;
+}
+#clear-update .symbol{
+ width:58px;height:58px;margin:0 auto 16px;
+ display:grid;place-items:center;border-radius:19px;
+ background:linear-gradient(135deg,#2d7ff9,#7b61ff,#26d9ff);
+ font-size:26px;
+}
+#clear-update h2{font-size:20px;margin:0 0 10px}
+#clear-update p{font-size:13px;color:#aab6d8;line-height:1.6}
+#clear-update button{
+ width:100%;padding:14px;border:0;border-radius:30px;
+ margin-top:17px;background:linear-gradient(135deg,#2d7ff9,#7b61ff);
+ color:white;font-weight:700;font-size:14px;
+}
+#clear-update .later{
+ background:transparent;color:#aab6d8;margin-top:5px;
+}
+</style>
+
+<div id="clear-update">
+ <div class="panel">
+  <div class="symbol">↗</div>
+  <h2>A new CLEAR update!</h2>
+  <p>A new version is ready. Update now to enjoy the latest features and improvements.</p>
+  <button id="clear-update-now">UPDATE NOW</button>
+  <button class="later" id="clear-update-later">Maybe later</button>
+ </div>
+</div>
+
+<script>
+(function(){
+ if(!("serviceWorker" in navigator))return;
+
+ let registration;
+ let reloading=false;
+
+ const popup=document.getElementById("clear-update");
+ const updateBtn=document.getElementById("clear-update-now");
+
+ function showUpdate(){
+   popup.classList.add("show");
+ }
+
+ function hideUpdate(){
+   popup.classList.remove("show");
+ }
+
+ async function checkUpdate(){
+   try{
+     registration=await navigator.serviceWorker.getRegistration("./");
+
+     if(!registration){
+       registration=await navigator.serviceWorker.register(
+         "./sw.js",{scope:"./"}
+       );
+     }
+
+     if(registration.waiting && navigator.serviceWorker.controller){
+       showUpdate();
+     }
+
+     registration.addEventListener("updatefound",()=>{
+       const worker=registration.installing;
+       if(!worker)return;
+
+       worker.addEventListener("statechange",()=>{
+         if(worker.state==="installed" &&
+            navigator.serviceWorker.controller){
+           showUpdate();
+         }
+       });
+     });
+
+     await registration.update();
+   }catch(error){
+     console.warn("CLEAR update check:",error);
+   }
+ }
+
+ updateBtn.addEventListener("click",()=>{
+   const worker=registration && registration.waiting;
+   if(!worker)return;
+
+   updateBtn.disabled=true;
+   updateBtn.textContent="UPDATING...";
+
+   worker.postMessage({type:"SKIP_WAITING"});
+ });
+
+ document.getElementById("clear-update-later")
+   .addEventListener("click",hideUpdate);
+
+ navigator.serviceWorker.addEventListener(
+   "controllerchange",()=>{
+     if(reloading)return;
+     reloading=true;
+     location.reload();
+   }
+ );
+
+ checkUpdate();
+ setInterval(checkUpdate,60*60*1000);
+})();
+</script>
+</body>
+</html>
