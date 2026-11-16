@@ -1,7 +1,7 @@
 importScripts('./clear-push.js');
 
 // CLEAR service worker
-const CACHE = "clear-v9";
+const CACHE = "clear-v10";
 
 const SHELL = [
   "./",
